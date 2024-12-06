@@ -1,131 +1,82 @@
-# Demo服务实例部署文档
+# SubQuery Network Node Operators Deployment Guide
 
-## 概述
+This tutorial provides a step-by-step guide to deploy SubQuery Network Node Operators using Alibaba Cloud Compute Nest and ECS. 
 
-`(服务概述内容)`。
+## Introduction
 
-```
-eg：
+## Prerequisites
+Before starting, ensure you have:
 
-Demo服务是计算巢提供的示例。
-本文向您介绍如何开通计算巢上的`Demo`服务，以及部署流程和使用说明。
-```
+An active Alibaba Cloud account.
+Familiarity with cloud services.
 
-## 计费说明
+## Step 1: Alibaba Cloud Account Setup
+If you haven't already, sign up for an Alibaba Cloud account: Sign up (https://www.alibabacloud.com).
 
-`(计费说明内容)`
+## Step 2: Access Compute Nest
+Navigate to Compute Nest and locate the service for SubQuery Network Node Operators
 
-```
-eg:
+## Step 3: Set Up an Instance and Its Parameters
+Configure the necessary parameters for the instance
 
-Demo在计算巢上的费用主要涉及：
+Service Instance Name: Provide a meaningful name for the instance.
+Instance Password: Create a secure password for the instance.
 
-- 所选vCPU与内存规格
-- 系统盘类型及容量
-- 公网带宽
+## Step 4: Deploy Your Service
+Review all configurations and accept the Terms of Service. Click Create Now to deploy your service.
 
-计费方式包括：
+## Step 5: What to do after creating the ECS instance
 
-- 按量付费（小时）
-- 包年包月
+### 1. Log in to the server
 
-目前提供如下实例：
+The node operator services are already configured to start automatically along with the server. You can log in to the server with the following command:
 
-| 规格族 | vCPU与内存 | 系统盘 | 公网带宽 |
-| --- | --- | --- | --- |
-| ecs.r6.xlarge | 内存型r6，4vCPU 32GiB | ESSD云盘 200GiB PL0 | 固定带宽1Mbps |
-
-预估费用在创建实例时可实时看到。
-如需更多规格、其他服务（如集群高可用性要求、企业级支持服务等），请联系我们 [mailto:xx@xx.com](mailto:xx@xx.com)。
-
+```shell
+ssh username@ip_address -L 8000:localhost:8000
 ```
 
-## 部署架构
+And then you can access the subquery node operator coordinator by opening a browser and going to `http://localhost:8000`.
 
-`(部署概述内容)`
+### 2. Register new node operator
 
-## RAM账号所需权限
+On the coordinator page, you can register as a new node operator by following the instructions and start to behave as a node operator.
 
-`(权限策略内容)`
+> Refer to the [Register in the Node Operator Admin App](https://academy.subquery.network/subquery_network/node_operators/setup/becoming-a-node-operator.html#_3-register-in-the-node-operator-admin-app) and the steps after that for more information.
 
-```
-eg: 
+## What to consider in docker-compose.yml [v2]
 
-Demo服务需要对ECS、VPC等资源进行访问和创建操作，若您使用RAM用户创建服务实例，需要在创建服务实例前，对使用的RAM用户的账号添加相应资源的权限。添加RAM权限的详细操作，请参见[为RAM用户授权](https://help.aliyun.com/document_detail/121945.html)。所需权限如下表所示。
+The `/home/subquery-indexer/docker-compose.yml` file is pre-configured for immediate use. However, you may need to adjust some settings like secret key, network endpoint, and other configurations.
 
+> Refer to the [Port configurations](https://academy.subquery.network/subquery_network/node_operators/setup/becoming-a-node-operator.html#port-configurations) and [Running Node Operator Services](https://academy.subquery.network/subquery_network/node_operators/setup/becoming-a-node-operator.html#running-node-operator-services) for more information.
 
-| 权限策略名称 | 备注 |
-| --- | --- |
-| AliyunECSFullAccess | 管理云服务器服务（ECS）的权限 |
+## What to consider in docker-compose.yml [v1]
 
-```
+The `/home/subquery-indexer/docker-compose.yml` file is pre-configured for immediate use. However, you may need to adjust the following settings:
 
-## 部署流程
+**Coordinator and Proxy Services:**
 
-### 部署步骤
+- `--secret-key`: Replace with a secure secret key. Ensure it is the same for both the coordinator and proxy services.
+- `--network-endpoint`: Update to a higher rate-limited endpoint if necessary.
 
-`(部署步骤内容)`
+**Coordinator Service:**
 
-```
-eg:
+- `ports:` Ensure the coordinator service is not exposed to the public network. This can be managed through Docker Compose configuration or firewall settings.
 
-1. 单击部署链接，进入服务实例部署界面，根据界面提示，填写参数完成部署。
-2. 补充示意图。
-```
-### 部署参数说明
+**Proxy Service:**
 
-`(部署参数说明内容)`
+- `ports:` Ensure the proxy service is exposed to the public network. This requires configuration in both Docker Compose and firewall settings.
+- SSL Support: Consider adding a reverse proxy service like Nginx to support SSL.
 
-```
-eg:
+**Postgres Service:**
 
-您在创建服务实例的过程中，需要配置服务实例信息。下文介绍云XR实时渲染平台服务实例输入参数的详细信息。
+- `POSTGRES_PASSWORD`: Replace with a secure password. Ensure it matches the `--postgres-password` in the coordinator service.
 
-| 参数组 | 参数项 | 示例 | 说明 |
-| --- | --- | --- | --- |
-| 服务实例名称 |  | test | 实例的名称 |
-| 地域 |  | 华北2（北京） | 选中服务实例的地域，建议就近选中，以获取更好的网络延时。 |
+Remember to restart the services after making any changes:
+
+```shell
+cd /home/subquery-indexer
+docker compose up -d
 ```
 
-### 验证结果
-
-`(验证结果内容)`
-
-```
-eg:
-
-1. 查看服务实例。服务实例创建成功后，部署时间大约需要2分钟。部署完成后，页面上可以看到对应的服务实例。 
-2. 通过服务实例访问TuGraph。进入到对应的服务实例后，可以在页面上获取到web、rpc、ssh共3种使用方式。
-```
-
-### 使用Demo
-
-`(服务使用说明内容)`
-
-```
-eg:
-
-请访问Demo官网了解如何使用：[使用文档](https://www.aliyun.com)
-```
-
-## 问题排查
-
-`(服务使用说明内容)`
-
-```
-eg:
-
-请访问[Demo的问题排查链接](https://www.aliyun.com)获取帮助。
-```
-
-## 联系我们
-
-欢迎访问Demo官网（[https://www.aliyun.com](https://www.aliyun.com)）了解更多信息。
-
-联系邮箱：[https://www.aliyun.com](mailto:https://www.aliyun.com)
-
-社区版开源地址：[https://github.com/](https://github.com/)
-
-扫码关注微信公众号，技术博客、活动通知不容错过：
-
-`(添加二维码图片)`
+## Conclusion
+This tutorial has guided you through the comprehensive process of building a SubQuery Network Node Operators service using Alibaba Cloud Compute Nest and ECS. Following these steps will help you to quickly deploy SubQuery Network Node Operators services on Alibaba Cloud.
